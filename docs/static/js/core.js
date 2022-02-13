@@ -6,9 +6,9 @@ class svgMap {
   /**
    * 构造函数
    */
-  constructor () {
+  constructor (data) {
     this.SVG_NS = 'http://www.w3.org/2000/svg';
-    const params = {
+    let params = {
       map: china,
       width: 900,
       height: 500,
@@ -60,6 +60,9 @@ class svgMap {
         name: []
       }
     }
+    console.log(data)
+    params = this.merge(params, data)
+    console.log(params)
     this.map = params.map
     this.width = params.width
     this.height = params.height
@@ -249,7 +252,6 @@ class svgMap {
     if (~index) {
       this.selection.splice(index, 1)
     } else {
-      console.log(this.multiple)
       if (this.multiple) {
         this.selection.push(id)
       } else {
@@ -277,7 +279,7 @@ class svgMap {
     this.init(obj)
   }
   /**
-   * 
+   * 获取样式
    */
    getStyle (obj, attr) {
     if (obj.currentStyle) {
@@ -285,6 +287,23 @@ class svgMap {
     } else {
       return document.defaultView.getComputedStyle(obj, null)[attr];
     }
+  }
+  /**
+   * 合并数据
+   */
+  merge (original, src) {
+    for (let key in original) {
+      if (key in src) {
+        if (typeof original[key] === typeof src[key]) {
+          if (typeof original[key] === 'object' && typeof original[key].length !== 'number' && key !== 'map') {
+            this.merge(original[key], src[key])
+          } else {
+            original[key] = src[key]
+          }
+        }
+      }
+    }
+    return original
   }
 }
 
@@ -318,7 +337,10 @@ class svgMap {
 
 
 // 数据配置
-import { china } from './china.js'
+import { china } from '../json/china.js'
+import { hunan } from '../json/hunan.js'
 
 // 实例化
-new svgMap({})
+new svgMap({
+  map: hunan
+})
