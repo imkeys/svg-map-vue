@@ -13,6 +13,12 @@ class svgMap {
       width: 900,
       height: 500,
       multiple: false,
+      spot: {
+        width: 10,
+        height: 10,
+        opacity: 1,
+        imgurl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAA/UlEQVQ4ja2UPW7CQBBGH4u5QFpIbzrSIyRamlzDl8hBuAgtEqJGVqQIeqBCcICQZaI1Y7TrHwKKP2klezzztDvzrVsiQkExMAFGwADoATsgBRbADNgEJQ7irUREVnJfK8271fmADxGxfwByWc0PIMkTAB+U5JD4gSPUydXFkTbxrdjdn+0cu19iT2vaL33a3SHR67iY5uomkU6hBPj+nMLlnL3bQ4o9fmXPFaCR0TEGcjvIATddztd4WQOjPgghp3VVcl28Z9RIgVwPqlQT3xl1YgjpDsF0wqDpXONlpZFa+d3/lDfvgemQ1Tfhk8Yc29jd8Xf09C3+//8E+AWtnj5RUfVN/AAAAABJRU5ErkJggg=='
+      },
       label: {
         visible: false,
         fontSize: 12,
@@ -57,16 +63,15 @@ class svgMap {
         except: false,
         backgroundColor: '#dddddd',
         fontColor: '#999999',
-        name: []
+        name: ['liuyangxian']
       }
     }
-    console.log(data)
     params = this.merge(params, data)
-    console.log(params)
     this.map = params.map
     this.width = params.width
     this.height = params.height
     this.multiple = params.multiple
+    this.spot = params.spot
     this.label = params.label
     this.stroke = params.stroke
     this.fill = params.fill
@@ -79,10 +84,11 @@ class svgMap {
    * 初始化SVG
    */
   init (map) {
-    // 容器
+    // map
     this.$map = document.getElementById('map');
-    // SVG元素
+    // Svg
     this.$svg = document.createElementNS(this.SVG_NS, 'svg');
+    this.$svg.id = 'wui-svg__map'
     this.$svg.setAttribute('version', '1.1')
     this.$svg.setAttribute('xmlns', this.SVG_NS)
     this.$svg.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`)
@@ -90,9 +96,29 @@ class svgMap {
     this.$svg.setAttribute('height', this.height)
     this.$svg.style.position = 'relative'
     this.$svg.style.zIndex = 1
+    // Svg:style
+    const $style = document.createElementNS(this.SVG_NS, 'style')
+    $style.innerHTML = `
+    #wui-svg__map {
+      background: #f5f5f5;
+    }
+    `
+    this.$svg.appendChild($style)
+    // Defs
+    const $defs = document.createElementNS(this.SVG_NS, 'defs')
+    const $icon = document.createElementNS(this.SVG_NS, 'image')
+    $icon.id = 'icon'
+    $icon.setAttribute('width', this.spot.width)
+    $icon.setAttribute('height', this.spot.height)
+    $icon.setAttribute('opacity', this.spot.opacity)
+    $icon.setAttribute('href', this.spot.imgurl)
+    $defs.appendChild($icon)
+    this.$svg.appendChild($defs)
     // 遍历地图数据
     for (let key in map) {
-      const { name, svg, textPosition } = map[key]
+      const { name, svg, textPosition, spotPosition } = map[key]
+      const hasLabel = textPosition && Object.keys(textPosition).length > 0
+      const hasSpot = spotPosition && Object.keys(spotPosition).length > 0
       // Path
       const $path = document.createElementNS(this.SVG_NS, 'path')
       $path.setAttribute('d', svg)
@@ -109,30 +135,45 @@ class svgMap {
       $path.setAttribute('stroke-linejoin', this.stroke.linejoin)
       $path.style.cursor = 'pointer'
       $path.style.transition = 'all .2s ease 0s';
+      // Spot
+      const $spot = document.createElementNS(this.SVG_NS, 'use')
+      if (hasSpot) {
+        const [x, y] = spotPosition
+        $spot.setAttribute('data-id', key)
+        $spot.setAttribute('x', x)
+        $spot.setAttribute('y', y)
+        $spot.setAttribute('href', '#icon')
+        $spot.style.pointerEvents = 'none'
+        $spot.style.transition = 'all .2s ease 0s';
+      }
       // Label
-      const [x, y] = textPosition
       const $label = document.createElementNS(this.SVG_NS, 'text')
-      $label.setAttribute('data-id', key)
-      $label.setAttribute('x', x)
-      $label.setAttribute('y', y)
-      $label.setAttribute('fill', this.label.basicColor)
-      $label.setAttribute('data-fill-basic', this.label.basicColor)
-      $label.setAttribute('data-fill-hover', this.label.hoverColor)
-      $label.setAttribute('data-fill-click', this.label.clickColor)
-      $label.setAttribute('font-size', this.label.fontSize)
-      $label.setAttribute('opacity', this.label.opacity)
-      $label.style.pointerEvents = 'none'
-      $label.style.transition = 'all .2s ease 0s';
-      $label.innerHTML = name
+      if (hasLabel) {
+        const [x, y] = textPosition
+        $label.setAttribute('data-id', key)
+        $label.setAttribute('x', x)
+        $label.setAttribute('y', y)
+        $label.setAttribute('fill', this.label.basicColor)
+        $label.setAttribute('data-fill-basic', this.label.basicColor)
+        $label.setAttribute('data-fill-hover', this.label.hoverColor)
+        $label.setAttribute('data-fill-click', this.label.clickColor)
+        $label.setAttribute('font-size', this.label.fontSize)
+        $label.setAttribute('opacity', this.label.opacity)
+        $label.style.pointerEvents = 'none'
+        $label.style.transition = 'all .2s ease 0s';
+        $label.innerHTML = name
+      }
       // Disabled
       if (this.disabled.name.length > 0) {
         if (~this.disabled.name.indexOf(key)) {
           if (!this.disabled.except) {
             $path.setAttribute('data-disabled', true)
             $label.setAttribute('data-disabled', true)
+            $spot.setAttribute('data-disabled', true)
             $path.setAttribute('fill', this.disabled.backgroundColor)
             $label.setAttribute('fill', this.disabled.fontColor)
             $path.style.cursor = 'not-allowed'
+            $spot.style.filter = 'grayscale(1)'
           } else {      
             $path.addEventListener('mouseenter', this.handleMonseEnter.bind(this, $path, $label), false)
             $path.addEventListener('mousemove', this.handleMonseMove.bind(this, $path, $label), false)
@@ -143,9 +184,11 @@ class svgMap {
           if (this.disabled.except) {
             $path.setAttribute('data-disabled', true)
             $label.setAttribute('data-disabled', true)
+            $spot.setAttribute('data-disabled', true)
             $path.setAttribute('fill', this.disabled.backgroundColor)
             $label.setAttribute('fill', this.disabled.fontColor)
             $path.style.cursor = 'not-allowed'
+            $spot.style.filter = 'grayscale(1)'
           } else {
             $path.addEventListener('mouseenter', this.handleMonseEnter.bind(this, $path, $label), false)
             $path.addEventListener('mousemove', this.handleMonseMove.bind(this, $path, $label), false)
@@ -162,7 +205,8 @@ class svgMap {
       // 插入DOM
       this.$svg.appendChild($path)
       setTimeout(() => {
-        this.$svg.appendChild($label)
+        if (hasLabel) this.$svg.appendChild($label)
+        if (hasSpot) this.$svg.appendChild($spot)
       }, 1)
     }
     // 装载页面
@@ -188,7 +232,7 @@ class svgMap {
     }
     // bar
     this.$bar = document.createElement('div');
-    const $barText = document.createElement('span');
+    const $barText = document.createElement('div');
     $barText.style.backgroundColor = this.bar.backgroundColor;
     $barText.style.opacity = this.bar.opacity;
     $barText.style.padding = this.bar.padding;
@@ -198,13 +242,26 @@ class svgMap {
     $barText.style.borderRadius = this.bar.border.radius + 'px';
     $barText.style.lineHeight = 1.2
     $barText.style.fontSize = this.bar.font.size + 'px'
-    $barText.innerHTML = name;
+    $barText.innerHTML = `
+      <div class="thead" style="padding: 0 0 5px; margin: 0 0 5px; border-bottom: 1px solid rgba(0, 0, 0, .1);">
+        <h3>${name}</h3>
+      </div>
+      <dl class="tbody" style="line-height: 1.8;">
+        <dd>加油站数量：100</dd>
+        <dd>异常加油站数量：20</dd>
+        <dd>异常占比：20%</dd>
+        <dd>增值税申报营业额：2015456万</dd>
+        <dd>疑似少申报额：2001万</dd>
+      </dl>
+    `;
     const { pageX, pageY } = e
     const zIndex = Number(this.getStyle(this.$svg, 'zIndex'))
+    this.$bar.id = 'wui-svg-bar'
     this.$bar.style.position = 'fixed'
     this.$bar.style.zIndex = zIndex + 1
     this.$bar.style.left = (pageX + this.bar.offset.x) + 'px'
     this.$bar.style.top = (pageY + this.bar.offset.y) + 'px'
+    this.$bar.style.transition = 'all .2s ease 0s';
     this.$bar.appendChild($barText)
     document.body.appendChild(this.$bar)
   }
@@ -339,8 +396,9 @@ class svgMap {
 // 数据配置
 import { china } from '../json/china.js'
 import { hunan } from '../json/hunan.js'
+import { changsha } from '../json/changsha.js'
 
 // 实例化
 new svgMap({
-  map: hunan
+  map: changsha
 })

@@ -12,7 +12,3 @@ body {
 	height: 100vh;
 	background: #eeeeee;
 }
-
-#map svg {
-	background: #bbbbbb;
-}
