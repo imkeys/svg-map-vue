@@ -85,7 +85,7 @@ class svgMap {
     this.$svg = document.createElementNS(this.SVG_NS, 'svg');
     this.$svg.setAttribute('version', '1.1')
     this.$svg.setAttribute('xmlns', this.SVG_NS)
-    this.$svg.setAttribute('viewBox', `-20 -20 ${this.width} ${this.height}`)
+    this.$svg.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`)
     this.$svg.setAttribute('width', this.width)
     this.$svg.setAttribute('height', this.height)
     this.$svg.style.position = 'relative'
