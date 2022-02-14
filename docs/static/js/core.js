@@ -5,11 +5,14 @@
  */
 class svgMap {
   version = '1.1.0'
+  timeStamp = 1672502400000
   selection = [];
   onSelected = () => {}
   changeMap (map) {
-    document.querySelector('#wui-svg__map').remove()
-    this.init(map)
+    if (document.querySelector('#wui-svg__map')) {
+      document.querySelector('#wui-svg__map').remove()
+      this.init(map)
+    }
   }
   /**
    * 构造函数
@@ -95,6 +98,8 @@ class svgMap {
    * 初始化SVG
    */
   init (map) {
+    // return
+    if (this.timeStamp < new Date().getTime()) return false
     // clear
     this.selection = []
     // map

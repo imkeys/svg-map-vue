@@ -52,17 +52,12 @@
 		china2 = china
 		hunan2 = hunan
 		changsha2 = changsha
-
 		// 实例化
 		newMap = new svgMap({
 			map: changsha,
 			multiple: true,
-			bar: {
-				visible: false
-			},
-			disabled: {
-				name: ['liuyangxian']
-			}
+			bar: {},
+			disabled: {}
 		})
 		newMap.onSelected = (obj) => {
 			console.log('选择了 ==> ', obj)
