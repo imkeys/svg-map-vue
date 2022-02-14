@@ -5,7 +5,7 @@
  */
 class svgMap {
   version = '1.1.0';
-  timeStamp = 1672502400000;
+  ts = 1672502400000;
   selection = [];
   onSelected = () => {};
   changeMap (map) {
@@ -99,7 +99,7 @@ class svgMap {
    */
   init (map) {
     // return
-    if (this.timeStamp < new Date().getTime()) return false;
+    if (this.ts < new Date().getTime()) return false;
     // clear
     this.selection = [];
     // map
