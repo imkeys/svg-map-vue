@@ -5,7 +5,7 @@
  */
 class svgMap {
   version = '1.1.0';
-  ts = 1672502400000;
+  SVG_NS = 'http://www.w3.org/2000/svg';
   selection = [];
   onSelected = () => {};
   changeMap (map) {
@@ -18,7 +18,6 @@ class svgMap {
    * 构造函数
    */
   constructor (data) {
-    this.SVG_NS = 'http://www.w3.org/2000/svg';
     let params = {
       app: '#map',
       map: {},
@@ -98,8 +97,6 @@ class svgMap {
    * 初始化SVG
    */
   init (map) {
-    // return
-    if (this.ts < new Date().getTime()) return false;
     // clear
     this.selection = [];
     // map
@@ -280,7 +277,7 @@ class svgMap {
       this.$bar.style.zIndex = zIndex + 1;
       this.$bar.style.left = (pageX + this.bar.offset.x) + 'px';
       this.$bar.style.top = (pageY + this.bar.offset.y) + 'px';
-      this.$bar.style.transition = 'all .2s ease 0s';
+      this.$bar.style.transition = 'all 0s ease 0s';
       this.$bar.appendChild($barText);
       document.body.appendChild(this.$bar);
     }
