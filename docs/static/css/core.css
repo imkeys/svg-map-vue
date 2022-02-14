@@ -1,14 +1,26 @@
 * {
-	margin: 0;
-	padding: 0;
-	outline: none;
-	box-sizing: content-box;
-	background: transparent;
-	font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  box-sizing: content-box;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
 }
-
 body {
-	width: 100vw;
-	height: 100vh;
-	background: #eeeeee;
+  width: 100vw;
+  height: 100vh;
+  background: #eeeeee;
+}
+.buttons {
+  position: relative;
+  text-align: right;
+  padding: 20px 100px 0 0;
+}
+.buttons dd {
+  display: inline-block;
+  vertical-align: middle;
+}
+.buttons button {
+  padding: 5px 20px;
+  cursor: pointer;
 }

@@ -13,7 +13,61 @@
 
 <body>
 	<div id="map"></div>
-	<script src="./static/js/core.js" type="module"></script>
+	<dl class="buttons">
+		<dd >
+			<button onclick="changeMap(1)">中国</button>
+		</dd>
+		<dd >
+			<button onclick="changeMap(2)">湖南</button>
+		</dd>
+		<dd >
+			<button onclick="changeMap(3)">长沙</button>
+		</dd>
+	</dl>
+	<script src="./static/js/core.js"></script>
+	<script>
+		var china2 = {}
+		var hunan2 = {}
+		var changsha2 = {}
+		var newMap = null
+		function changeMap (mid) {
+			let map = {}
+			if (mid === 1) {
+				map = china2
+			} else if (mid === 2) {
+				map = hunan2
+			} else if (mid === 3) {
+				map = changsha2
+			}
+			newMap.changeMap(map)
+		}
+	</script>
+	<script type="module">
+		/**
+		 * 数据配置
+		 */
+		import { china } from './static/json/china.js'
+		import { hunan } from './static/json/hunan.js'
+		import { changsha } from './static/json/changsha.js'
+		china2 = china
+		hunan2 = hunan
+		changsha2 = changsha
+
+		// 实例化
+		newMap = new svgMap({
+			map: changsha,
+			multiple: true,
+			bar: {
+				visible: false
+			},
+			disabled: {
+				name: ['liuyangxian']
+			}
+		})
+		newMap.onSelected = (obj) => {
+			console.log('选择了 ==> ', obj)
+		}
+	</script>
 	</div>
 </body>
 </html>

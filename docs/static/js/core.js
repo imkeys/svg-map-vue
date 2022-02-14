@@ -1,15 +1,24 @@
+/*!
+ *  svgMap v1.0.0
+ *  Copyright (C) 2022-2022, LiQingyun
+ *  Released under the MIT license
+ */
 class svgMap {
-  /**
-   * 变量
-   */
+  version = '1.1.0'
   selection = [];
+  onSelected = () => {}
+  changeMap (map) {
+    document.querySelector('#wui-svg__map').remove()
+    this.init(map)
+  }
   /**
    * 构造函数
    */
   constructor (data) {
     this.SVG_NS = 'http://www.w3.org/2000/svg';
     let params = {
-      map: china,
+      app: '#map',
+      map: {},
       width: 900,
       height: 500,
       multiple: false,
@@ -40,6 +49,7 @@ class svgMap {
         opacity: 1
       },
       bar: {
+        visible: true,
         maxWidth: 200,
         backgroundColor: 'rgba(255, 255, 255, .8)',
         opacity: 1,
@@ -63,10 +73,11 @@ class svgMap {
         except: false,
         backgroundColor: '#dddddd',
         fontColor: '#999999',
-        name: ['liuyangxian']
+        name: []
       }
     }
     params = this.merge(params, data)
+    this.app = params.app
     this.map = params.map
     this.width = params.width
     this.height = params.height
@@ -84,8 +95,10 @@ class svgMap {
    * 初始化SVG
    */
   init (map) {
+    // clear
+    this.selection = []
     // map
-    this.$map = document.getElementById('map');
+    this.$map = document.querySelector(this.app);
     // Svg
     this.$svg = document.createElementNS(this.SVG_NS, 'svg');
     this.$svg.id = 'wui-svg__map'
@@ -96,7 +109,7 @@ class svgMap {
     this.$svg.setAttribute('height', this.height)
     this.$svg.style.position = 'relative'
     this.$svg.style.zIndex = 1
-    // Svg:style
+    // Style
     const $style = document.createElementNS(this.SVG_NS, 'style')
     $style.innerHTML = `
     #wui-svg__map {
@@ -231,48 +244,52 @@ class svgMap {
       $label.setAttribute('fill', labelColor)
     }
     // bar
-    this.$bar = document.createElement('div');
-    const $barText = document.createElement('div');
-    $barText.style.backgroundColor = this.bar.backgroundColor;
-    $barText.style.opacity = this.bar.opacity;
-    $barText.style.padding = this.bar.padding;
-    $barText.style.borderWidth = this.bar.border.width + 'px'
-    $barText.style.borderStyle = this.bar.border.style
-    $barText.style.borderColor = this.bar.border.color
-    $barText.style.borderRadius = this.bar.border.radius + 'px';
-    $barText.style.lineHeight = 1.2
-    $barText.style.fontSize = this.bar.font.size + 'px'
-    $barText.innerHTML = `
-      <div class="thead" style="padding: 0 0 5px; margin: 0 0 5px; border-bottom: 1px solid rgba(0, 0, 0, .1);">
-        <h3>${name}</h3>
-      </div>
-      <dl class="tbody" style="line-height: 1.8;">
-        <dd>加油站数量：100</dd>
-        <dd>异常加油站数量：20</dd>
-        <dd>异常占比：20%</dd>
-        <dd>增值税申报营业额：2015456万</dd>
-        <dd>疑似少申报额：2001万</dd>
-      </dl>
-    `;
-    const { pageX, pageY } = e
-    const zIndex = Number(this.getStyle(this.$svg, 'zIndex'))
-    this.$bar.id = 'wui-svg-bar'
-    this.$bar.style.position = 'fixed'
-    this.$bar.style.zIndex = zIndex + 1
-    this.$bar.style.left = (pageX + this.bar.offset.x) + 'px'
-    this.$bar.style.top = (pageY + this.bar.offset.y) + 'px'
-    this.$bar.style.transition = 'all .2s ease 0s';
-    this.$bar.appendChild($barText)
-    document.body.appendChild(this.$bar)
+    if (this.bar.visible) {
+      this.$bar = document.createElement('div');
+      const $barText = document.createElement('div');
+      $barText.style.backgroundColor = this.bar.backgroundColor;
+      $barText.style.opacity = this.bar.opacity;
+      $barText.style.padding = this.bar.padding;
+      $barText.style.borderWidth = this.bar.border.width + 'px'
+      $barText.style.borderStyle = this.bar.border.style
+      $barText.style.borderColor = this.bar.border.color
+      $barText.style.borderRadius = this.bar.border.radius + 'px';
+      $barText.style.lineHeight = 1.2
+      $barText.style.fontSize = this.bar.font.size + 'px'
+      $barText.innerHTML = `
+        <div class="thead" style="padding: 0 0 5px; margin: 0 0 5px; border-bottom: 1px solid rgba(0, 0, 0, .1);">
+          <h3>${name}</h3>
+        </div>
+        <dl class="tbody" style="line-height: 1.8;">
+          <dd>加油站数量：100</dd>
+          <dd>异常加油站数量：20</dd>
+          <dd>异常占比：20%</dd>
+          <dd>增值税申报营业额：2015456万</dd>
+          <dd>疑似少申报额：2001万</dd>
+        </dl>
+      `;
+      const { pageX, pageY } = e
+      const zIndex = Number(this.getStyle(this.$svg, 'zIndex'))
+      this.$bar.id = 'wui-svg-bar'
+      this.$bar.style.position = 'fixed'
+      this.$bar.style.zIndex = zIndex + 1
+      this.$bar.style.left = (pageX + this.bar.offset.x) + 'px'
+      this.$bar.style.top = (pageY + this.bar.offset.y) + 'px'
+      this.$bar.style.transition = 'all .2s ease 0s';
+      this.$bar.appendChild($barText)
+      document.body.appendChild(this.$bar)
+    }
   }
   /**
    * 鼠标移动
    */
   handleMonseMove ($path, $label, e) {
     // bar
-    const { pageX, pageY } = e
-    this.$bar.style.left = (pageX + this.bar.offset.x) + 'px'
-    this.$bar.style.top = (pageY + this.bar.offset.y) + 'px'
+    if (this.bar.visible) {
+      const { pageX, pageY } = e
+      this.$bar.style.left = (pageX + this.bar.offset.x) + 'px'
+      this.$bar.style.top = (pageY + this.bar.offset.y) + 'px'
+    }
   }
   /**
    * 鼠标移出
@@ -292,12 +309,12 @@ class svgMap {
       $label.setAttribute('fill', labelColor)
     }
     // bar
-    this.$bar.remove()
+    if (this.bar.visible) this.$bar.remove()
   }
   /**
    * 鼠标点击
    */
-  handleClick ($path, $label, e) {
+  handleClick ($path, $label) {
     const id = $path.getAttribute('data-id')
     const fillColor =  $path.getAttribute('data-fill-basic')
     const labelColor =  $label.getAttribute('data-fill-basic')
@@ -328,12 +345,8 @@ class svgMap {
         })
       }
     }
-  }
-  /**
-   * 切换地图
-   */
-  changeMap (obj) {
-    this.init(obj)
+    // callback
+    this.onSelected(this.selection)
   }
   /**
    * 获取样式
@@ -364,41 +377,3 @@ class svgMap {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 数据配置
-import { china } from '../json/china.js'
-import { hunan } from '../json/hunan.js'
-import { changsha } from '../json/changsha.js'
-
-// 实例化
-new svgMap({
-  map: changsha
-})
