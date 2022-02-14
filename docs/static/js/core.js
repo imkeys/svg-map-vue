@@ -272,8 +272,8 @@ class svgMap {
       `;
       const { pageX, pageY } = e;
       const zIndex = Number(this.getStyle(this.$svg, 'zIndex'));
-      this.$bar.id = 'wui-svg-bar';
-      this.$bar.style.position = 'fixed';
+      this.$bar.id = 'wui-svg__bar';
+      this.$bar.style.position = 'absolute';
       this.$bar.style.zIndex = zIndex + 1;
       this.$bar.style.left = (pageX + this.bar.offset.x) + 'px';
       this.$bar.style.top = (pageY + this.bar.offset.y) + 'px';
